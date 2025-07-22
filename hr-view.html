@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF‑8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>NSB HR – Staff Bank Info View</title>
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+  />
+  <style>
+    :root {
+      --nsb-orange: #f58220;
+      --nsb-dark: #b35a00;
+      --gray-light: #f7f7f7;
+      --gray-mid: #ddd;
+      --gray-dark: #333;
+      --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      font-family: var(--font-family);
+      background: var(--gray-light);
+      color: var(--gray-dark);
+      margin: 0;
+      padding: 30px 15px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      user-select: none;
+    }
+
+    h2 {
+      color: var(--nsb-orange);
+      font-weight: 700;
+      font-size: 2rem;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    button#downloadCsvBtn {
+      background: var(--nsb-orange);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-weight: 700;
+      font-size: 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 3px 8px rgba(245, 130, 32, 0.7);
+      margin-bottom: 20px;
+      transition: background-color 0.3s ease;
+      user-select: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    button#downloadCsvBtn:hover {
+      background: var(--nsb-dark);
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      max-width: 900px;
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+      user-select: text;
+    }
+
+    thead {
+      background: var(--nsb-orange);
+      color: white;
+      font-weight: 700;
+    }
+
+    thead th {
+      padding: 12px 15px;
+      text-align: left;
+      position: relative;
+      user-select: none;
+    }
+
+    tbody tr:nth-child(even) {
+      background: #fff6eb;
+    }
+
+    tbody td {
+      padding: 12px 15px;
+      border-bottom: 1px solid var(--gray-mid);
+    }
+
+    tbody tr:hover {
+      background: #ffe6cc;
+    }
+
+    /* Responsive */
+    @media (max-width: 640px) {
+      body {
+        padding: 15px 10px;
+      }
+      table {
+        font-size: 0.9rem;
+      }
+      thead th,
+      tbody td {
+        padding: 8px 10px;
+      }
+      button#downloadCsvBtn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h2><i class="fas fa-database"></i> Staff Bank Info</h2>
+  <button id="downloadCsvBtn"><i class="fas fa-file-csv"></i> Download CSV</button>
+  <table>
+    <thead>
+      <tr><th>Name</th><th>EPF</th><th>Station</th><th>Bank</th><th>Account</th><th>Type</th></tr>
+    </thead>
+    <tbody id="data-body"></tbody>
+  </table>
+ <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import {
+    getFirestore,
+    collection,
+    getDocs
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAIc7OsQ5fjeqXkqHJ3UQu4Aeza1T37e0s",
+    authDomain: "nsb-staff-records.firebaseapp.com",
+    projectId: "nsb-staff-records",
+    storageBucket: "nsb-staff-records.firebasestorage.app",
+    messagingSenderId: "633681396626",
+    appId: "1:633681396626:web:b085e360d35f5e6c42374b"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  async function fetchData() {
+    try {
+      const querySnapshot = await getDocs(collection(db, 'nsbStaff'));
+      const data = [];
+      querySnapshot.forEach(doc => {
+        const d = doc.data();
+        data.push({
+          name: d.name,
+          epf: d.epf,
+          station: d.station,
+          accounts: d.bankAccounts.map(acc => ({
+            bank: acc.bankName,
+            accountNumber: acc.accountNumber,
+            type: acc.accountType
+          }))
+        });
+      });
+      renderTable(data);
+      setupCSV(data);
+    } catch (error) {
+      alert('Failed to load data: ' + error.message);
+    }
+  }
+
+  function renderTable(data) {
+    const tbody = document.getElementById('data-body');
+    tbody.innerHTML = '';
+    data.forEach(rec => {
+      rec.accounts.forEach(acc => {
+        const row = `<tr>
+          <td>${rec.name}</td>
+          <td>${rec.epf}</td>
+          <td>${rec.station}</td>
+          <td>${acc.bank}</td>
+          <td>${acc.accountNumber}</td>
+          <td>${acc.type}</td>
+        </tr>`;
+        tbody.innerHTML += row;
+      });
+    });
+  }
+
+  function setupCSV(data) {
+    document.getElementById('downloadCsvBtn').onclick = () => {
+      let csv = 'Name,EPF,Station,Bank,Account,Type\n';
+      data.forEach(rec => {
+        rec.accounts.forEach(acc => {
+          csv += `"${rec.name}","${rec.epf}","${rec.station}","${acc.bank}","${acc.accountNumber}","${acc.type}"\n`;
+        });
+      });
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'staff-data.csv';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    };
+  }
+
+  fetchData();
+</script>
+</body>
+</html>
