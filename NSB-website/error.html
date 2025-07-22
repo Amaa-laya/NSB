@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Error - Duplicate EPF Number</title>
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    body {
+      background: #f7f7f7;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #333;
+      margin: 0;
+      padding: 40px 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      user-select: none;
+    }
+    .error-container {
+      background: white;
+      padding: 40px 50px;
+      border-radius: 12px;
+      box-shadow: 0 4px 18px rgba(245,130,32,0.4);
+      max-width: 500px;
+      width: 90vw;
+      text-align: center;
+      animation: fadeIn 0.5s ease forwards;
+    }
+    .error-container h2 {
+      color: #e03e2f; /* nice red */
+      font-weight: 700;
+      font-size: 2.2rem;
+      margin-bottom: 20px;
+    }
+    .error-container p {
+      font-size: 1.1rem;
+      margin-bottom: 25px;
+      line-height: 1.4;
+    }
+    .error-container i {
+      font-size: 3rem;
+      color: #e03e2f;
+      margin-bottom: 15px;
+      animation: shake 0.6s ease infinite;
+    }
+    .back-button {
+      background: #f58220;
+      border: none;
+      padding: 10px 20px;
+      font-weight: 700;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      box-shadow: 0 3px 8px rgba(245,130,32,0.7);
+      transition: background-color 0.3s ease;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .back-button:hover {
+      background: #b35a00;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-5px); }
+      40%, 80% { transform: translateX(5px); }
+    }
+  </style>
+</head>
+<body>
+  <div class="error-container" role="main" aria-live="assertive" aria-label="Duplicate EPF Number Error">
+    <i class="fas fa-exclamation-triangle"></i>
+    <h2>Oops! Duplicate EPF Number Detected</h2>
+    <p>The EPF number you entered has already been submitted.</p>
+    <p>If you believe this is an error or wish to update your information, please contact the HR department directly.</p>
+    <a href="index.html" class="back-button" role="button" aria-label="Back to form">Back to Form</a>
+  </div>
+</body>
+</html>
